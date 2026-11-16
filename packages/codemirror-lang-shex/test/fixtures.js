@@ -93,6 +93,7 @@ describe("highlighting", () => {
     {tag: t.regexp, class: "regexp"},
     {tag: t.operator, class: "operator"},
     {tag: t.atom, class: "dot"},
+    {tag: t.separator, class: "separator"},
     {tag: t.lineComment, class: "comment"},
     {tag: t.blockComment, class: "block-comment"},
     {tag: t.paren, class: "paren"},
@@ -118,7 +119,7 @@ describe("highlighting", () => {
       "  $<l> ^ex:p xsd:int MININCLUSIVE 1 {2,3} // ex:note 'x'@en ;",
       '  a [ex:v~ - ex:w 1.5 true @fr] ? ;',
       "  ex:q IRI /^a/i OR NOT LITERAL * ;",
-      "  ( ex:r . ) + ; & _:b",
+      "  ( ex:r . ) + %ex:empty% ; & _:b",
       "} /* d */",
       "<U> EXTERNAL",
     ].join("\n")
@@ -126,17 +127,17 @@ describe("highlighting", () => {
       ["# c", "comment"],
       ["PREFIX", "directive"], ["ex:", "prefix"], ["<http://ex.example/>", "iri"],
       ["BASE", "directive"], ["<http://b.example/>", "iri"], ["IMPORT", "directive"], ["<i>", "iri"],
-      ["ex:act", "action"], ["{ code %}", "code"],
-      ["start", "start"], ["@ex:S", "shape"],
+      ["%", "action"], ["ex:act", "action"], ["{ code %}", "code"],
+      ["start", "start"], ["=", "operator"], ["@ex:S", "shape"],
       ["ABSTRACT", "modifier"], ["ex:S", "shape-definition"], ["EXTENDS", "keyword"], ["@<T>", "shape"],
       ["CLOSED", "modifier"], ["EXTRA", "modifier"], ["a", "keyword"], ["{", "brace"],
-      ["<l>", "label"], ["^", "operator"], ["ex:p", "predicate"], ["xsd:int", "datatype"], ["MININCLUSIVE", "facet"],
-      ["1", "integer"], ["{2,3}", "operator"], ["// ex:note 'x'@en", "annotation"],
-      ["a", "keyword"], ["[", "bracket"], ["ex:v", "iri"], ["ex:w", "iri"], ["1.5", "float"], ["true", "bool"],
-      ["@fr", "langtag"], ["]", "bracket"], ["?", "operator"],
+      ["$", "label"], ["<l>", "label"], ["^", "operator"], ["ex:p", "predicate"], ["xsd:int", "datatype"], ["MININCLUSIVE", "facet"],
+      ["1", "integer"], ["{2,3}", "operator"], ["//", "annotation"], ["ex:note", "predicate"], ["'x'@en", "string"], [";", "separator"],
+      ["a", "keyword"], ["[", "bracket"], ["ex:v", "iri"], ["~", "operator"], ["-", "operator"], ["ex:w", "iri"], ["1.5", "float"], ["true", "bool"],
+      ["@fr", "langtag"], ["]", "bracket"], ["?", "operator"], [";", "separator"],
       ["ex:q", "predicate"], ["IRI", "kind"], ["/^a/i", "regexp"], ["OR", "logic"], ["NOT", "logic"], ["LITERAL", "kind"],
-      ["*", "operator"],
-      ["(", "paren"], ["ex:r", "predicate"], [".", "dot"], [")", "paren"], ["+", "operator"], ["_:b", "label"],
+      ["*", "operator"], [";", "separator"],
+      ["(", "paren"], ["ex:r", "predicate"], [".", "dot"], [")", "paren"], ["+", "operator"], ["%", "action"], ["ex:empty", "action"], [";", "separator"], ["&", "label"], ["_:b", "label"],
       ["}", "brace"], ["/* d */", "block-comment"],
       ["<U>", "shape-definition"], ["EXTERNAL", "modifier"],
     ])
@@ -149,7 +150,15 @@ describe("highlighting", () => {
     ])
   })
 
-  // Nodes that carry no tag of their own: their children do, or a rule with a context.
+  it("highlights one-of, separators and datatypes of literals", () => {
+    assert.deepStrictEqual(classes(`<S> { <p> ["s"^^<d>] , <q> . | <r> . }`).filter(([, cls]) => cls != "bracket" && cls != "brace"), [
+      ["<S>", "shape-definition"], ["<p>", "predicate"], ['"s"', "string"], ["^^", "operator"], ["<d>", "datatype"],
+      [",", "separator"], ["<q>", "predicate"], [".", "dot"], ["|", "logic"], ["<r>", "predicate"], [".", "dot"],
+    ])
+  })
+
+  // Nodes that carry no tag of their own: their children do, or a rule with a context ("%" in
+  // CodeDecl, not in EmptyCode).
   const untagged = new Set([
     "ShexDoc", "BaseDecl", "PrefixDecl", "ImportDecl", "Start", "StartActions", "ShapeExprDecl", "ShapeExprLabel",
     "ShapeAtom", "InlineShapeAtom", "ExtendsShapeAtom", "ShapeDefinition", "InlineShapeDefinition", "Extension",
@@ -157,7 +166,7 @@ describe("highlighting", () => {
     "NonLitInlineNodeConstraint", "NonLiteralKind", "StringFacet", "StringLength", "NumericFacet", "NumericRange",
     "NumericLength", "NumericLiteral", "TripleConstraint", "BracketedTripleExpr", "MultiElementGroup",
     "MultiElementOneOf", "Include", "Predicate", "ValueSet", "IriRange", "IriExclusion", "LiteralRange",
-    "LiteralExclusion", "LanguageRange", "LanguageExclusion", "Exclusion", "CodeDecl", "Iri", "PrefixedName",
+    "LiteralExclusion", "LanguageRange", "LanguageExclusion", "Exclusion", "Annotation", "CodeDecl", "EmptyCode", "%", "Iri", "PrefixedName",
     "BlankNode", "RdfLiteral", "String", "LangString", "AtpnameLn", "AtpnameNs",
   ])
 

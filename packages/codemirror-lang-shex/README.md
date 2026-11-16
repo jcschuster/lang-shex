@@ -20,7 +20,10 @@ Nodes are named after the productions of the specification in CamelCase (`ShapeE
 `PnameLn`, `Langtag`, `StringLiteral2`); productions that only pass one child through, and
 the levels of `OR`, `AND` and `NOT`, are no nodes. Keywords are tokens named by their text
 (`PREFIX`, `start`, `CLOSED`). Comments are `LineComment` and `BlockComment`, string
-literals sit in `String`, brackets are the tokens `"("`, `")"`, `"{"`, `"}"`, `"["`, `"]"`.
+literals sit in `String`, brackets are the tokens `"("`, `")"`, `"{"`, `"}"`, `"["`, `"]"`,
+marked with their partners. The punctuation `.`, `|`, `~`, `-`, `=`, `^^`, `$`, `&`, `%`, `;`,
+`,` and `//` are tokens named by their text; the `%` that ends a semantic action without code
+sits in `EmptyCode`.
 
 What the tests show: every production and terminal of the specification's grammar, as
 amended by the deviations below, is reachable from the top rule of the generated grammar

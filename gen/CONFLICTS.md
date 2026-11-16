@@ -70,10 +70,15 @@ matches only as written.
   no parse starts from, so that its text is an error, as under the longest match (this
   grammar has none).
 - `@caseInsensitive` (above).
+- The `CodeDecl` rule, which wraps the `"%"` that ends a semantic action without code in an
+  inline rule `EmptyCode`, so that the highlighting can tell it from the `"%"` before the
+  name.
 - The `Exclusion` rule with its precedence marker (above); the generator keeps the comment
   lines right above an overlay rule with the rule.
 - `@skip { whitespace | LineComment | BlockComment }`, which names the three alternatives of
   `PASSED TOKENS`.
-- In `@tokens`: the order of `BlockComment` and `Regexp`, and `"(" ")" "{" "}" "[" "]" "."`
-  as named tokens, for highlighting, folding and indentation.
-- The highlighting prop source and `@detectDelim`.
+- In `@tokens`: the order of `BlockComment` and `Regexp`; the brackets as named tokens
+  marked with their partners (`closedBy`, `openedBy`), for highlighting, folding, indentation
+  and bracket matching; `"." "|" "~" "-" "=" "^^" "$" "&" "%" ";" "," "//"` as named tokens, for
+  highlighting.
+- The highlighting prop source.

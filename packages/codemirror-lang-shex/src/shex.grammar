@@ -2,8 +2,8 @@
 
 // Hand-written part of src/shex.grammar. gen/ebnf2lezer.mjs adds a rule per production and a
 // token per terminal of the grammar in spec/. A rule here named like a production must repeat
-// the generated body and only adds a @top, props or conflict markers. The lines starting with
-// @hidden, @unused and @caseInsensitive are read by the generator, not by Lezer.
+// the generated body and only adds a @top, props, conflict markers or inline rules. The lines
+// starting with @hidden, @unused and @caseInsensitive are read by the generator, not by Lezer.
 // gen/CONFLICTS.md explains each entry.
 
 @precedence { exclusion @left }
@@ -11,8 +11,6 @@
 @skip { whitespace | LineComment | BlockComment }
 
 @external propSource shexHighlighting from "./highlight"
-
-@detectDelim
 
 // One rule per production, in the order of the grammar.
 
@@ -287,8 +285,10 @@ semanticActions {
   CodeDecl*
 }
 
+// The "%" that ends a semantic action without code is a node of its own, so that only the "%"
+// before the name is highlighted with it.
 CodeDecl {
-  "%" Iri (Code | "%")
+  "%" Iri (Code | EmptyCode { "%" })
 }
 
 literal {
@@ -534,7 +534,9 @@ NonLitInlineNodeConstraint {
   // A comment, as in shex.js, which skips comments first: "/**/" is also a REGEXP.
   @precedence { BlockComment, Regexp }
 
-  "(" ")" "{" "}" "[" "]" "."
+  // @detectDelim would only mark ValueSet: the other rules have more than the brackets.
+  "("[closedBy=")"] ")"[openedBy="("] "{"[closedBy="}"] "}"[openedBy="{"] "["[closedBy="]"] "]"[openedBy="["]
+  "." "|" "~" "-" "=" "^^" "$" "&" "%" ";" "," "//"
 
   // The longer match first (gen/CONFLICTS.md).
   @precedence { AtpnameLn, "@" }

@@ -16,7 +16,7 @@ export const pascal = name =>
     ? name.toLowerCase().replace(/(^|_)([a-z0-9])/g, (_, __, c) => c.toUpperCase())
     : name.replace(/^./, c => c.toUpperCase())
 const camel = name => pascal(name).replace(/^./, c => c.toLowerCase())
-const normalize = text => text.replace(/[!~]\w+/g, "").replace(/\s+/g, " ").replace(/\( /g, "(").replace(/ \)/g, ")").trim()
+const normalize = text => text.replace(/[!~]\w+/g, "").replace(/\b[A-Z]\w*\s*\{([^{}]*)\}/g, "$1").replace(/\s+/g, " ").replace(/\( /g, "(").replace(/ \)/g, ")").trim()
 
 /// The rules defined in Lezer text, each starting a line: {name, top, props, body, comment,
 /// from, to}, where `comment` holds the `//` lines right above the rule, and `from` is where
@@ -111,8 +111,8 @@ export function generate(grammar, overlayText) {
   }
   const alternatives = expr => expr.alt ?? [expr]
 
-  // Overlay rules named like a production add a @top, props or conflict markers to it; their
-  // body must be the generated one, markers aside.
+  // Overlay rules named like a production add a @top, props, conflict markers or inline rules
+  // to it; their body must be the generated one, markers and inline rule names aside.
   const ownRules = new Map(overlayRules.filter(rule => byRule.has(rule.name)).map(rule => [rule.name, rule]))
   const rules = []
   for (const name of reachedProductions) {

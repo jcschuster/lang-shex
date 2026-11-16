@@ -16,7 +16,7 @@ ShexDoc(BaseDecl(BASE,Iriref),PrefixDecl(PREFIX,PnameNs,Iriref),PrefixDecl(PREFI
 
 ==>
 
-ShexDoc(StartActions(CodeDecl(Iri(PrefixedName(PnameLn)),Code),CodeDecl(Iri(PrefixedName(PnameLn)))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(".")))
+ShexDoc(StartActions(CodeDecl(Iri(PrefixedName(PnameLn)),Code),CodeDecl(Iri(PrefixedName(PnameLn)),EmptyCode)),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(".")))
 
 # A start shape, and directives after declarations
 
