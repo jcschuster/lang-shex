@@ -10,6 +10,12 @@ The ShEx specification the grammar was generated from is recorded in `package.js
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-16
+
+### Changed
+
+- No changes
+
 ## [0.1.0] - 2026-11-16
 
 ### Added
