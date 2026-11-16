@@ -1,0 +1,47 @@
+# A triple constraint with sense flag, cardinalities and annotation
+
+<S> { ^<p> . * ; <q> IRI + ; a @<T> ? ; <r> LITERAL {2} ; <s> . {1,} ; <t> . {1,3} ; <u> . {0,*} }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementGroup(TripleConstraint(SenseFlags,Predicate(Iri(Iriref)),InlineShapeAtom("."),Cardinality),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(NonLitInlineNodeConstraint(NonLiteralKind(IRI))),Cardinality),TripleConstraint(Predicate(RdfType),InlineShapeAtom(ShapeRef(ShapeExprLabel(Iri(Iriref)))),Cardinality),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(LitInlineNodeConstraint(LITERAL)),Cardinality(RepeatRange)),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."),Cardinality(RepeatRange)),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."),Cardinality(RepeatRange)),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."),Cardinality(RepeatRange))),"}"))))
+
+# Groups, one-of and a trailing separator
+
+<S> { <p> . ; <q> . | <r> . ; }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementOneOf(MultiElementGroup(TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."))),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."))),"}"))))
+
+# Bracketed triple expressions with label, cardinality, annotation and action
+
+<S> { $<l> (<p> . | <q> .) + // <a> 1 %<e>{ %} ; $_:m <r> . }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementGroup(TripleExprLabel(Iri(Iriref)),BracketedTripleExpr("(",MultiElementOneOf(TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."))),")",Cardinality,Annotation(Predicate(Iri(Iriref)),NumericLiteral(Integer)),CodeDecl(Iri(Iriref),Code)),TripleExprLabel(BlankNode(BlankNodeLabel)),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."))),"}"))))
+
+# Inclusions
+
+<S> { &<l> ; & ex:m ; &_:n }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementGroup(Include(TripleExprLabel(Iri(Iriref))),Include(TripleExprLabel(Iri(PrefixedName(PnameLn)))),Include(TripleExprLabel(BlankNode(BlankNodeLabel)))),"}"))))
+
+# Inline shape atoms: parentheses, nested shapes, node constraint and shape
+
+<S> { <p> (IRI OR LITERAL) ; <q> { <r> . } ; <s> IRI { } ; <t> { } IRI ; <u> NOT . AND @<T> }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementGroup(TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("(",ShapeAtom(NonLitNodeConstraint(NonLitInlineNodeConstraint(NonLiteralKind(IRI)))),OR,ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(LITERAL))),")")),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(InlineShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),"}"))),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(NonLitInlineNodeConstraint(NonLiteralKind(IRI)),InlineShapeDefinition("{","}"))),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(InlineShapeDefinition("{","}"),NonLitInlineNodeConstraint(NonLiteralKind(IRI)))),TripleConstraint(Predicate(Iri(Iriref)),NOT,InlineShapeAtom("."),AND,InlineShapeAtom(ShapeRef(ShapeExprLabel(Iri(Iriref)))))),"}"))))
+
+# Annotations with literal objects
+
+<S> { <p> . // <a> 'x' // <b> "y"@en // <c> 1.5 // <d> true // <e> <f> }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."),Annotation(Predicate(Iri(Iriref)),RdfLiteral(String(StringLiteral1))),Annotation(Predicate(Iri(Iriref)),RdfLiteral(LangString(LangStringLiteral2))),Annotation(Predicate(Iri(Iriref)),NumericLiteral(Decimal)),Annotation(Predicate(Iri(Iriref)),BooleanLiteral),Annotation(Predicate(Iri(Iriref)),Iri(Iriref))),"}"))))

@@ -1,0 +1,6 @@
+repository: https://github.com/shexSpec/shexTest
+commit:     ea33621cbaf6572619b00d51505e8807f3e28710
+date:       2026-10-30
+files:      the .shex files of schemas/, negativeSyntax/ and negativeStructure/, and LICENSE
+sha256:     f56158a72166a9b87f87be24c5fb37375036300c53252243d669e714be98996e
+refresh:    .github/scripts/fetch-fixtures.sh, which also writes sha256 (of the files, sorted)

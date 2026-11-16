@@ -1,0 +1,62 @@
+# IRIs, prefixed names, blank nodes
+
+<http://a.example/S1> { <> . ; ex:p . ; : . ; ex:a.b . ; ex:a%20b . ; ex:\~a . ; ex:1 . ; ex:a:b . ; <a\u0020b> . ; <\U0001F600> . }
+_:b { <p> . }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementGroup(TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(PrefixedName(PnameLn))),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(PrefixedName(PnameNs))),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(PrefixedName(PnameLn))),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(PrefixedName(PnameLn))),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(PrefixedName(PnameLn))),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(PrefixedName(PnameLn))),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(PrefixedName(PnameLn))),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."))),"}"))),ShapeExprDecl(ShapeExprLabel(BlankNode(BlankNodeLabel)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),"}"))))
+
+# Strings, language-tagged strings, the four quotes
+
+<S> ['a' "b" '''c
+d''' """e""" 'f'@en "g"@en-GB '''h'''@de """i"""@fr "\t\u00e9\U0001F600" "x"^^xsd:string]
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",LiteralRange(RdfLiteral(String(StringLiteral1))),LiteralRange(RdfLiteral(String(StringLiteral2))),LiteralRange(RdfLiteral(String(StringLiteralLong1))),LiteralRange(RdfLiteral(String(StringLiteralLong2))),LiteralRange(RdfLiteral(LangString(LangStringLiteral1))),LiteralRange(RdfLiteral(LangString(LangStringLiteral2))),LiteralRange(RdfLiteral(LangString(LangStringLiteralLong1))),LiteralRange(RdfLiteral(LangString(LangStringLiteralLong2))),LiteralRange(RdfLiteral(String(StringLiteral2))),LiteralRange(RdfLiteral(String(StringLiteral2),Datatype(Iri(PrefixedName(PnameLn))))),"]"))))))
+
+# Numbers and booleans
+
+<S> [0 +1 -12 1.0 .5 -0.1 1e1 1.E1 .5e-3 true false]
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",LiteralRange(NumericLiteral(Integer)),LiteralRange(NumericLiteral(Integer)),LiteralRange(NumericLiteral(Integer)),LiteralRange(NumericLiteral(Decimal)),LiteralRange(NumericLiteral(Decimal)),LiteralRange(NumericLiteral(Decimal)),LiteralRange(NumericLiteral(Double)),LiteralRange(NumericLiteral(Double)),LiteralRange(NumericLiteral(Double)),LiteralRange(BooleanLiteral),LiteralRange(BooleanLiteral),"]"))))))
+
+# Regular expressions with escapes and flags
+
+<S> /^a.b$/ /\// /\-\[\]/smix /\u0061/
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(NonLitNodeConstraint(NonLitInlineNodeConstraint(StringFacet(Regexp),StringFacet(Regexp),StringFacet(Regexp),StringFacet(Regexp))))))
+
+# Semantic action code with escapes
+
+<S> { <p> . %<e>{ a \% b \\ %} }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."),CodeDecl(Iri(Iriref),Code)),"}"))))
+
+# Comments
+
+# line
+<S> /* block
+comment */ { <p> . # end
+}
+
+==>
+
+ShexDoc(LineComment,ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),BlockComment,ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),LineComment,"}"))))
+
+# Overlapping tokens Lezer orders itself: long strings, repeat range over brace, prefixed name over keyword
+
+PREFIX BASE: <x>
+<S> ['''a''' """""" '' "" ''''a''' '''''']
+<T> { <p> . {2} ; BASE:p {<q> .} }
+
+==>
+
+ShexDoc(PrefixDecl(PREFIX,PnameNs,Iriref),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",LiteralRange(RdfLiteral(String(StringLiteralLong1))),LiteralRange(RdfLiteral(String(StringLiteralLong2))),LiteralRange(RdfLiteral(String(StringLiteral1))),LiteralRange(RdfLiteral(String(StringLiteral2))),LiteralRange(RdfLiteral(String(StringLiteralLong1))),LiteralRange(RdfLiteral(String(StringLiteralLong1))),"]"))))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementGroup(TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."),Cardinality(RepeatRange)),TripleConstraint(Predicate(Iri(PrefixedName(PnameLn))),InlineShapeAtom(InlineShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),"}")))),"}"))))

@@ -1,0 +1,69 @@
+# AND, OR, NOT and parentheses
+
+<S> NOT IRI AND (@<T> OR LITERAL) OR .
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),NOT,ShapeAtom(NonLitNodeConstraint(NonLitInlineNodeConstraint(NonLiteralKind(IRI)))),AND,ShapeAtom("(",ShapeAtom(ShapeRef(ShapeExprLabel(Iri(Iriref)))),OR,ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(LITERAL))),")"),OR,ShapeAtom(".")))
+
+# Node kinds and string facets, alone and before a shape
+
+<S> BNODE MINLENGTH 1 MAXLENGTH 9 { }
+<T> NONLITERAL LENGTH 3 /ab/
+<U> /a/ @<V>
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(NonLitNodeConstraint(NonLitInlineNodeConstraint(NonLiteralKind(BNODE),StringFacet(StringLength(MINLENGTH),Integer),StringFacet(StringLength(MAXLENGTH),Integer))),ShapeDefinition("{","}"))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(NonLitNodeConstraint(NonLitInlineNodeConstraint(NonLiteralKind(NONLITERAL),StringFacet(StringLength(LENGTH),Integer),StringFacet(Regexp))))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(NonLitNodeConstraint(NonLitInlineNodeConstraint(StringFacet(Regexp))),ShapeRef(ShapeExprLabel(Iri(Iriref))))))
+
+# A shape or reference before a node kind
+
+<S> { } IRI
+<T> @<U> LENGTH 2
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{","}"),NonLitNodeConstraint(NonLitInlineNodeConstraint(NonLiteralKind(IRI))))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeRef(ShapeExprLabel(Iri(Iriref))),NonLitNodeConstraint(NonLitInlineNodeConstraint(StringFacet(StringLength(LENGTH),Integer))))))
+
+# Literal node constraints: datatype, LITERAL, value set, numeric facets
+
+<S> xsd:decimal MININCLUSIVE 1 MAXEXCLUSIVE 2.5 TOTALDIGITS 3
+<T> LITERAL FRACTIONDIGITS 2 MINEXCLUSIVE -1 MAXINCLUSIVE 1e3
+<U> [1 2] LENGTH 1
+<V> MININCLUSIVE 0
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(Datatype(Iri(PrefixedName(PnameLn))),NumericFacet(NumericRange(MININCLUSIVE),NumericLiteral(Integer)),NumericFacet(NumericRange(MAXEXCLUSIVE),NumericLiteral(Decimal)),NumericFacet(NumericLength(TOTALDIGITS),Integer))))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(LITERAL,NumericFacet(NumericLength(FRACTIONDIGITS),Integer),NumericFacet(NumericRange(MINEXCLUSIVE),NumericLiteral(Integer)),NumericFacet(NumericRange(MAXINCLUSIVE),NumericLiteral(Double)))))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",LiteralRange(NumericLiteral(Integer)),LiteralRange(NumericLiteral(Integer)),"]"),StringFacet(StringLength(LENGTH),Integer))))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(NumericFacet(NumericRange(MININCLUSIVE),NumericLiteral(Integer)))))))
+
+# Shape references
+
+<S> @ex:T AND @ex: AND @<T> AND @ _:b AND @ ex:T
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeRef(AtpnameLn)),AND,ShapeAtom(ShapeRef(AtpnameNs)),AND,ShapeAtom(ShapeRef(ShapeExprLabel(Iri(Iriref)))),AND,ShapeAtom(ShapeRef(ShapeExprLabel(BlankNode(BlankNodeLabel)))),AND,ShapeAtom(ShapeRef(ShapeExprLabel(Iri(PrefixedName(PnameLn)))))))
+
+# Value sets: IRIs, literals, languages, stems and exclusions
+
+<S> [<v> ex:w~ ex:x~ - ex:y - ex:z~ "a" "b"~ - "c" 1~ @en @fr~ - @fr-be @~ - @de . - <v> - <w>~ . - "x" . - @en]
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",IriRange(Iri(Iriref)),IriRange(Iri(PrefixedName(PnameLn))),IriRange(Iri(PrefixedName(PnameLn)),IriExclusion(Iri(PrefixedName(PnameLn))),IriExclusion(Iri(PrefixedName(PnameLn)))),LiteralRange(RdfLiteral(String(StringLiteral2))),LiteralRange(RdfLiteral(String(StringLiteral2)),LiteralExclusion(RdfLiteral(String(StringLiteral2)))),LiteralRange(NumericLiteral(Integer)),LanguageRange(Langtag),LanguageRange(Langtag,LanguageExclusion(Langtag)),LanguageRange(LanguageExclusion(Langtag)),Exclusion(".",IriExclusion(Iri(Iriref)),IriExclusion(Iri(Iriref))),Exclusion(".",LiteralExclusion(RdfLiteral(String(StringLiteral2)))),Exclusion(".",LanguageExclusion(Langtag)),"]"))))))
+
+# An empty value set
+
+<S> []
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[","]"))))))
+
+# Shape definitions: EXTRA, CLOSED, annotations, semantic actions
+
+<S> EXTRA <p> <q> CLOSED EXTRA a { } // <a> "x" // <b> <c> %<ext>{ x %} %<ext2>%
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition(ExtraPropertySet(EXTRA,Predicate(Iri(Iriref)),Predicate(Iri(Iriref))),CLOSED,ExtraPropertySet(EXTRA,Predicate(RdfType)),"{","}",Annotation(Predicate(Iri(Iriref)),RdfLiteral(String(StringLiteral2))),Annotation(Predicate(Iri(Iriref)),Iri(Iriref)),CodeDecl(Iri(Iriref),Code),CodeDecl(Iri(Iriref))))))

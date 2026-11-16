@@ -1,0 +1,62 @@
+name: reference
+
+# Looks every Sunday whether https://shex.io/shex-semantics/ serves a ShEx specification other
+# than the one spec/SOURCE pins: another dated report, or other bytes under the pinned one,
+# which has been edited in place before; and whether gen/fetch.mjs still extracts spec/ from
+# the pinned one. If not, opens an issue for it, once. The grammar is extracted and reviewed
+# by hand (spec/README.md), so this workflow changes nothing itself.
+
+on:
+  schedule:
+    - cron: "0 5 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: cachix/install-nix-action@v31
+
+      - name: Open an issue for a new or changed specification, or a changed extraction
+        # bash with pipefail; the default shell has no pipefail.
+        shell: bash
+        run: |
+          latest=$(.github/scripts/latest-reference.sh)
+          dated=$(sed -n 's/^dated: *\([^ ]*\).*/\1/p' spec/SOURCE)
+          url=$(sed -n 's/^url: *//p' spec/SOURCE)
+          pinned=$(sed -n 's/^sha256: *//p' spec/SOURCE)
+          page=$RUNNER_TEMP/page.html
+          curl -fsSL "$url" -o "$page"
+          served=$(sha256sum "$page" | cut -d' ' -f1)
+          move="To move to it: point spec/SOURCE at it (url, dated, sha256, source, fetched), run node gen/fetch.mjs, review the diff of spec/shex-2.1.ebnf against the discrepancies and deviations in spec/README.md and spec/deviations.ebnf, update the package's \"shex\" field, then run .github/scripts/test-all.sh."
+          if [ "$latest" != "$dated" ]; then
+            title="New ShEx specification: $latest"
+            body="$url now serves $latest; spec/SOURCE pins $dated."
+            next=$move
+          elif [ "$served" != "$pinned" ]; then
+            title="ShEx specification changed: sha256 $served"
+            body="$url ($dated) now has sha256 $served; spec/SOURCE pins $pinned."
+            next=$move
+          elif ! nix develop --command node gen/fetch.mjs "$page" || ! git diff --exit-code -- spec/; then
+            title="gen/fetch.mjs no longer extracts spec/ at ${GITHUB_SHA::7}"
+            body="On the pinned specification ($url, sha256 $pinned), gen/fetch.mjs fails or writes other files than spec/ has at $GITHUB_SHA: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID."
+            next="To fix it: run node gen/fetch.mjs, and either correct gen/fetch.mjs or review and commit the diff of spec/ against spec/README.md, then run .github/scripts/test-all.sh."
+          else
+            echo "spec/SOURCE pins what $url serves, $dated, and gen/fetch.mjs extracts spec/ from it"
+            exit 0
+          fi
+          existing=$(gh issue list --state all --search "in:title \"$title\"" --json number --jq '.[].number')
+          if [ -n "$existing" ]; then
+            echo "an issue for this exists: $title"
+            exit 0
+          fi
+          printf '%s\n\n%s\n' "$body" "$next" > "$RUNNER_TEMP/body.md"
+          gh issue create --title "$title" --body-file "$RUNNER_TEMP/body.md"

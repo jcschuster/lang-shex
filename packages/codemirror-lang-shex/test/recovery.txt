@@ -1,0 +1,55 @@
+# An unclosed shape ends at the next directive
+
+<S> {
+  <p> . ;
+PREFIX ex: <x>
+<T> { <q> . }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),⚠))),PrefixDecl(PREFIX,PnameNs,Iriref),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),"}"))))
+
+# An unclosed shape takes the next label for a predicate
+
+<S> {
+  <p> . ;
+<T> { <q> . }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementGroup(TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(InlineShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),"}")),⚠)),⚠))))
+
+# A missing value expression
+
+<S> { <p> ; <q> . }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementGroup(TripleConstraint(Predicate(Iri(Iriref)),⚠),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."))),"}"))))
+
+# An unclosed value set, and an unterminated string
+
+<S> { <p> [1 2
+}
+<T> { <p> ["abc }
+<U> .
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(LitInlineNodeConstraint(ValueSet("[",LiteralRange(NumericLiteral(Integer)),LiteralRange(NumericLiteral(Integer)),⚠)))),"}"))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(LitInlineNodeConstraint(ValueSet("[",⚠,⚠(RdfType))))),"}"))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(".")))
+
+# A stray keyword
+
+<S> { <p> . AND }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."),AND,⚠),"}"))))
+
+# TRUE is not a boolean
+
+<S> [TRUE]
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",⚠,"]"))))))
