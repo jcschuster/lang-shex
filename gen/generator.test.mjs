@@ -90,10 +90,11 @@ test("the grammar builds without a warning and has no ambiguity marker", () => {
   assert.doesNotThrow(() => buildParser(grammar, {externalPropSource: () => () => null, warn: message => assert.fail(message)}))
 })
 
-test("an overlay rule named like a production must repeat its body", () => {
+test("an overlay rule named like a production must repeat its body, inline rules aside", () => {
   const changed = overlay.replace(top.body, `${top.body} ${top.body}`)
   assert.notEqual(changed, overlay)
   assert.throws(() => generate(spec.grammar, changed), new RegExp(`body of ${top.name} differs`))
+  assert.doesNotThrow(() => generate(spec.grammar, overlay.replace(top.body, `Named { ${top.body} }`)))
 })
 
 test("undefined and unused productions are errors", () => {

@@ -1,7 +1,8 @@
 import {shex} from "../dist/index.js"
 import {EditorState} from "@codemirror/state"
 import {CompletionContext} from "@codemirror/autocomplete"
-import {foldable, getIndentation} from "@codemirror/language"
+import {foldable, getIndentation, syntaxTree} from "@codemirror/language"
+import {NodeProp} from "@lezer/common"
 import assert from "assert"
 
 const state = doc => EditorState.create({doc, extensions: [shex()]})
@@ -71,5 +72,19 @@ describe("folding", () => {
     const doc = "<S> {\n  <p> [\n    <v>\n  ]\n}"
     const line = doc.indexOf("[")
     assert.deepStrictEqual(foldable(state(doc), doc.lastIndexOf("\n", line) + 1, doc.indexOf("\n", line)), {from: line + 1, to: doc.indexOf("]")})
+  })
+})
+
+describe("brackets", () => {
+  it("marks each opening bracket and its closing sibling as partners", () => {
+    const doc = "<S> CLOSED { ( <p> [<v>] ) * ; <q> @<T> } <T> ( { } ) <U> { <p> ( . ) }"
+    const pairs = []
+    syntaxTree(state(doc)).iterate({enter: node => {
+      const close = node.type.prop(NodeProp.closedBy)
+      if (!close) return
+      const partner = node.node.parent.getChild(close[0])
+      pairs.push(node.name + partner.name + partner.type.prop(NodeProp.openedBy))
+    }})
+    assert.deepStrictEqual(pairs, ["{}{", "()(", "[][", "()(", "{}{", "{}{", "()("])
   })
 })

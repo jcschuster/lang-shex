@@ -66,4 +66,4 @@ ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(Li
 
 ==>
 
-ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition(ExtraPropertySet(EXTRA,Predicate(Iri(Iriref)),Predicate(Iri(Iriref))),CLOSED,ExtraPropertySet(EXTRA,Predicate(RdfType)),"{","}",Annotation(Predicate(Iri(Iriref)),RdfLiteral(String(StringLiteral2))),Annotation(Predicate(Iri(Iriref)),Iri(Iriref)),CodeDecl(Iri(Iriref),Code),CodeDecl(Iri(Iriref))))))
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition(ExtraPropertySet(EXTRA,Predicate(Iri(Iriref)),Predicate(Iri(Iriref))),CLOSED,ExtraPropertySet(EXTRA,Predicate(RdfType)),"{","}",Annotation(Predicate(Iri(Iriref)),RdfLiteral(String(StringLiteral2))),Annotation(Predicate(Iri(Iriref)),Iri(Iriref)),CodeDecl(Iri(Iriref),Code),CodeDecl(Iri(Iriref),EmptyCode)))))
