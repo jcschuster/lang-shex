@@ -1,0 +1,10 @@
+title:    Shape Expressions Language 2.1
+status:   Final Community Group Report, 8 October 2019 (W3C Shape Expressions Community Group)
+editors:  Eric Prud'hommeaux, Iovka Boneva, Jose Emilio Labra Gayo, Gregg Kellogg
+url:      https://shex.io/shex-semantics/
+dated:    https://shex.io/shex-semantics-20191008/ (the same bytes on the fetch date)
+sha256:   97c316f8ade1a8a4e39faa071b75db27e086a586115da4324cf7c0e9d73d085c
+source:   shexSpec/spec 57d83f32d4aa349480720df3cd0b24419212cbd1 (2020-10-31, the last in-place edit of the dated report)
+fetched:  2026-11-16
+section:  shexc
+grammar:  shex-2.1.ebnf

@@ -1,0 +1,41 @@
+// Hand-written part of src/shex.grammar. gen/ebnf2lezer.mjs adds a rule per production and a
+// token per terminal of the grammar in spec/. A rule here named like a production must repeat
+// the generated body and only adds a @top, props or conflict markers. The lines starting with
+// @hidden, @unused and @caseInsensitive are read by the generator, not by Lezer.
+// gen/CONFLICTS.md explains each entry.
+
+@top ShexDoc { directive* ((notStartAction | StartActions) statement*)? }
+
+// Productions that pass one child through, and the levels of OR, AND and NOT, which wrap
+// every shape expression with or without an operator.
+@hidden directive notStartAction statement shapeExpression inlineShapeExpression
+@hidden shapeOr inlineShapeOr shapeAnd inlineShapeAnd shapeNot inlineShapeNot
+@hidden shapeOrRef inlineShapeOrRef xsFacet tripleExpression oneOfTripleExpr groupTripleExpr
+@hidden singleElementGroup unaryTripleExpr valueSetValue literal semanticActions
+@hidden extendsShapeExpression extendsShapeOr extendsShapeAnd extendsShapeNot
+
+// Defined in the specification, used by no production.
+@unused shapeAtomNoRef
+
+// D8 of spec/README.md, decided by Johannes 2026-11-16: keywords match in any case, as in
+// shex.js, except "true" and "false", which shex.js matches only as written.
+@caseInsensitive except "true" "false"
+
+@precedence { exclusion @left }
+
+// valueSetValue* and its exclusion+ both repeat exclusions: consecutive ones form one
+// valueSetValue.
+Exclusion { !exclusion "." (IriExclusion+ | LiteralExclusion+ | LanguageExclusion+) }
+
+@skip { whitespace | LineComment | BlockComment }
+
+@tokens {
+  // A comment, as in shex.js, which skips comments first: "/**/" is also a REGEXP.
+  @precedence { BlockComment, Regexp }
+
+  "(" ")" "{" "}" "[" "]" "."
+}
+
+@external propSource shexHighlighting from "./highlight"
+
+@detectDelim

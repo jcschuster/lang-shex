@@ -1,0 +1,39 @@
+# Directives
+
+BASE <http://base.example/>
+PREFIX ex: <http://ex.example/>
+PREFIX : <http://default.example/>
+IMPORT <http://import.example/s.shex>
+
+==>
+
+ShexDoc(BaseDecl(BASE,Iriref),PrefixDecl(PREFIX,PnameNs,Iriref),PrefixDecl(PREFIX,PnameNs,Iriref),ImportDecl(IMPORT,Iriref))
+
+# Start actions before the first declaration
+
+%ex:act{ code %} %ex:other%
+<S> .
+
+==>
+
+ShexDoc(StartActions(CodeDecl(Iri(PrefixedName(PnameLn)),Code),CodeDecl(Iri(PrefixedName(PnameLn)))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(".")))
+
+# A start shape, and directives after declarations
+
+PREFIX ex: <http://ex.example/>
+start = @ex:S
+ex:S .
+BASE <http://b.example/>
+<T> .
+
+==>
+
+ShexDoc(PrefixDecl(PREFIX,PnameNs,Iriref),Start(start,InlineShapeAtom(ShapeRef(AtpnameLn))),ShapeExprDecl(ShapeExprLabel(Iri(PrefixedName(PnameLn))),ShapeAtom(".")),BaseDecl(BASE,Iriref),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(".")))
+
+# EXTERNAL
+
+<S> EXTERNAL
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),EXTERNAL))

@@ -1,0 +1,59 @@
+# Hand-written. Each production replaces the extracted one of its name, or adds one; the
+# comment above it gives its item in spec/README.md ("Deviations"). Notation: spec/README.md.
+
+# D1, decided by Johannes 2026-11-16: as shex.js and shexSpec/grammar's ShExDoc.g4, several
+# exclusions of one kind after a wildcard; the published rule cannot derive [. - <v1> - <v2>].
+# Unlike shexSpec/spec d1d5e1bd (PR #59), no mixed kinds: ShExJ cannot represent them.
+[50] exclusion ::= '.' (iriExclusion+ | literalExclusion+ | languageExclusion+)
+
+# D2: shexSpec/spec c246fc44 (PR #31): iriExclusion, not exclusion.
+[51] iriRange ::= iri ('~' iriExclusion*)?
+
+# D3: shexSpec/spec df3e3996 (PR #32), as in SPARQL 1.1 and Turtle: no "." at the end.
+[77] <PN_LOCAL> ::= (PN_CHARS_U | ":" | [0-9] | PLX) ((PN_CHARS | "." | ":" | PLX)* (PN_CHARS | ":" | PLX))?
+
+# D4, decided by Johannes 2026-11-16: "$-\[" is read as the three characters $ - [, not as the range from $ to [, as in
+# the XPath escapes the specification refers to.
+[72] <REGEXP> ::= '/' ([^/\\\n\r]
+    | '\\' [nrt\\|.?*+(){}$\-\[\]^/]
+    | UCHAR
+    )+ '/' [smix]*
+
+# D5, decided by Johannes 2026-11-16: ShEx 2.next as shex.js parses it: ABSTRACT, RESTRICTS
+# or "-", EXTENDS or "&".
+[9] shapeExprDecl ::= "ABSTRACT"? shapeExprLabel restriction* (shapeExpression | "EXTERNAL")
+[33] shapeDefinition ::= (extension | extraPropertySet | "CLOSED")* '{' tripleExpression? '}' annotation* semanticActions
+[34] inlineShapeDefinition ::= (extension | extraPropertySet | "CLOSED")* '{' tripleExpression? '}'
+[] restriction ::= ("RESTRICTS" | '-') shapeOrRef
+[] extension ::= ("EXTENDS" | '&') extendsShapeExpression
+[] extendsShapeExpression ::= extendsShapeOr
+[] extendsShapeOr ::= extendsShapeAnd ("OR" extendsShapeAnd)*
+[] extendsShapeAnd ::= extendsShapeNot ("AND" extendsShapeNot)*
+[] extendsShapeNot ::= "NOT"? extendsShapeAtom
+[] extendsShapeAtom ::= nonLitInlineNodeConstraint inlineShapeOrRef
+    | litInlineNodeConstraint
+    | inlineShapeOrRef nonLitInlineNodeConstraint?
+    | '(' shapeExpression ')'
+    | '.'
+
+# D6, decided by Johannes 2026-11-16 (all of shexTest schemas/ parses): annotations and semantic
+# actions on a node constraint outside a triple constraint, as shex.js parses them; the
+# inline forms take neither.
+[20] inlineShapeAtom ::= nonLitInlineNodeConstraint inlineShapeOrRef?
+    | litInlineNodeConstraint
+    | inlineShapeOrRef nonLitInlineNodeConstraint?
+    | '(' shapeExpression ')'
+    | '.'
+[24] litNodeConstraint ::= litInlineNodeConstraint annotation* semanticActions
+[25] nonLitNodeConstraint ::= nonLitInlineNodeConstraint annotation* semanticActions
+[] litInlineNodeConstraint ::= "LITERAL" xsFacet*
+    | datatype xsFacet*
+    | valueSet xsFacet*
+    | numericFacet+
+[] nonLitInlineNodeConstraint ::= nonLiteralKind stringFacet*
+    | stringFacet+
+
+# D7, decided by Johannes 2026-11-16 (all of shexTest schemas/ parses): "," separates triple
+# expressions as ";" does, as shex.js parses it.
+[41] singleElementGroup ::= unaryTripleExpr (';' | ',')?
+[42] multiElementGroup ::= unaryTripleExpr ((';' | ',') unaryTripleExpr)+ (';' | ',')?

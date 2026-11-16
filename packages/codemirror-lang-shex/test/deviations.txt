@@ -1,0 +1,100 @@
+# D1: several exclusions after one wildcard
+
+<S> [. - <v1> - <v2>]
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",Exclusion(".",IriExclusion(Iri(Iriref)),IriExclusion(Iri(Iriref))),"]"))))))
+
+# D1: several literal or language exclusions after one wildcard
+
+<S> [. - "a" - 'b'~ . - @en - @fr~]
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",Exclusion(".",LiteralExclusion(RdfLiteral(String(StringLiteral2))),LiteralExclusion(RdfLiteral(String(StringLiteral1)))),Exclusion(".",LanguageExclusion(Langtag),LanguageExclusion(Langtag)),"]"))))))
+
+# D1: no exclusions of different kinds after one wildcard
+
+<S> [. - <a> - 'x']
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",Exclusion(".",IriExclusion(Iri(Iriref)),IriExclusion(⚠)),LiteralRange(RdfLiteral(String(StringLiteral1))),"]"))))))
+
+# D2: IRI exclusions after an IRI stem
+
+<S> [<v>~ - <v1> - <v2>~]
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",IriRange(Iri(Iriref),IriExclusion(Iri(Iriref)),IriExclusion(Iri(Iriref))),"]"))))))
+
+# D3: a prefixed name does not end in a dot
+
+<S> { ex:p. }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(PrefixedName(PnameLn))),InlineShapeAtom(".")),"}"))))
+
+# D4: an escaped dash in a regular expression
+
+<S> /a\-b/
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(NonLitNodeConstraint(NonLitInlineNodeConstraint(StringFacet(Regexp))))))
+
+# D5: ABSTRACT, EXTENDS and RESTRICTS, and their short forms
+
+ABSTRACT <A> { <p> . }
+<B> EXTENDS @<A> EXTENDS @<C> CLOSED { <q> . }
+<C> & @<A> { }
+<D> RESTRICTS @<A> - @<C> { }
+<E> EXTENDS IRI @<A> { }
+
+==>
+
+ShexDoc(ShapeExprDecl(ABSTRACT,ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),"}"))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition(Extension(EXTENDS,ExtendsShapeAtom(ShapeRef(ShapeExprLabel(Iri(Iriref))))),Extension(EXTENDS,ExtendsShapeAtom(ShapeRef(ShapeExprLabel(Iri(Iriref))))),CLOSED,"{",TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),"}"))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition(Extension(ExtendsShapeAtom(ShapeRef(ShapeExprLabel(Iri(Iriref))))),"{","}"))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),Restriction(RESTRICTS,ShapeRef(ShapeExprLabel(Iri(Iriref)))),Restriction(ShapeRef(ShapeExprLabel(Iri(Iriref)))),ShapeAtom(ShapeDefinition("{","}"))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition(Extension(EXTENDS,ExtendsShapeAtom(NonLitInlineNodeConstraint(NonLiteralKind(IRI)),ShapeRef(ShapeExprLabel(Iri(Iriref))))),"{","}"))))
+
+# D6: annotations and semantic actions on node constraints
+
+<S> [1 2] // <a> 3 %<e>{ %}
+<T> IRI // <a> 4 @<U>
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(LitNodeConstraint(LitInlineNodeConstraint(ValueSet("[",LiteralRange(NumericLiteral(Integer)),LiteralRange(NumericLiteral(Integer)),"]")),Annotation(Predicate(Iri(Iriref)),NumericLiteral(Integer)),CodeDecl(Iri(Iriref),Code)))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(NonLitNodeConstraint(NonLitInlineNodeConstraint(NonLiteralKind(IRI)),Annotation(Predicate(Iri(Iriref)),NumericLiteral(Integer))),ShapeRef(ShapeExprLabel(Iri(Iriref))))))
+
+# D6 does not apply to start, which takes an inline shape expression
+
+start = IRI // <p> 1
+
+==>
+
+ShexDoc(Start(start,InlineShapeAtom(NonLitInlineNodeConstraint(NonLiteralKind(IRI)),⚠)),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),⚠(Integer)))
+
+# D7: a comma separates triple expressions
+
+<S> { <p> ., <q> . , }
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition("{",MultiElementGroup(TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom(".")),TripleConstraint(Predicate(Iri(Iriref)),InlineShapeAtom("."))),"}"))))
+
+# D8: keywords in any case, true and false only as written
+
+prefix ex: <x> Base <y> import <z> START = Iri <S> closed extra a { a [true false] }
+
+==>
+
+ShexDoc(PrefixDecl(PREFIX,PnameNs,Iriref),BaseDecl(BASE,Iriref),ImportDecl(IMPORT,Iriref),Start(start,InlineShapeAtom(NonLitInlineNodeConstraint(NonLiteralKind(IRI)))),ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),ShapeAtom(ShapeDefinition(CLOSED,ExtraPropertySet(EXTRA,Predicate(RdfType)),"{",TripleConstraint(Predicate(RdfType),InlineShapeAtom(LitInlineNodeConstraint(ValueSet("[",LiteralRange(BooleanLiteral),LiteralRange(BooleanLiteral),"]")))),"}"))))
+
+# D8: NOT in any case, also not and nOT, which shex.js does not read as NOT
+
+<S> not IRI AND nOT @<T>
+
+==>
+
+ShexDoc(ShapeExprDecl(ShapeExprLabel(Iri(Iriref)),NOT,ShapeAtom(NonLitNodeConstraint(NonLitInlineNodeConstraint(NonLiteralKind(IRI)))),AND,NOT,ShapeAtom(ShapeRef(ShapeExprLabel(Iri(Iriref))))))
